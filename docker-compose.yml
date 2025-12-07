@@ -1,0 +1,27 @@
+services:
+  tf_serving:
+    build:
+      context: .
+      dockerfile: Dockerfile.tf_serving
+    ports:
+      - "8501:8501"
+    # NO volumes: do not mount /models from host
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/v1/models/image_classifier"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile.fastapi
+    ports:
+      - "8000:8000"
+    depends_on:
+      - tf_serving
+    environment:
+      - TF_SERVING_HOST=tf_serving
+      - TF_SERVING_REST_PORT=8501
+      - MODEL_NAME=image_classifier
+      - INPUT_SIZE=224   # change to 32 if your model expects 32

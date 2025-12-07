@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.env/
+.venv/
+myenv/
+__pycache__/
+
+# TensorFlow model artifacts
+saved_models/
+*.h5
+*.pb
+*.ckpt
+*.tflite
+logs/
+git re
+# Docker
+*__pycache__/
+docker-data/
+docker-compose.yml.zip
+
+# OS junk
+.DS_Store
+Thumbs.db

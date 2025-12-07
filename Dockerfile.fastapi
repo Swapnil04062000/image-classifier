@@ -1,0 +1,69 @@
+# # Dockerfile.fastapi
+# FROM python:3.9-slim
+
+# # Install dependencies (FastAPI, Uvicorn, Pillow, requests)
+# RUN pip install --no-cache-dir fastapi uvicorn pillow requests
+
+# # Create & set working directory so module 'app' is importable
+# WORKDIR /app
+
+# # Copy the FastAPI app file into /app/app.py
+# COPY scripts/app.py /app/app.py
+
+# # (Optional) copy labels or other files if needed:
+# # COPY labels.txt /app/labels.txt
+# COPY requirements.txt /tmp/requirements.txt
+# RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+
+# # Expose the port for FastAPI
+# EXPOSE 8000
+
+# # Start FastAPI with Uvicorn; module 'app' must be importable from WORKDIR (/app)
+# CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
+
+# Dockerfile.fastapi (optimized, BuildKit cache)
+# Build with: DOCKER_BUILDKIT=1 docker build -t my-fastapi:latest -f Dockerfile.fastapi .
+
+FROM python:3.9-slim
+
+# Reduce pip chatter and bytecode writes
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    POETRY_VIRTUALENVS_CREATE=false
+
+# Install small set of system packages needed by common wheels (Pillow, etc.)
+# Avoid installing build-essential unless you actually have packages that must be compiled.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+    build-essential \
+    libjpeg-dev \
+    zlib1g-dev \
+    gcc \
+    curl \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy only requirements first (cache-friendly)
+COPY requirements.txt /tmp/requirements.txt
+
+# Use BuildKit cache for pip downloads to speed repeat builds.
+# Note: this RUN uses BuildKit-specific syntax (--mount=type=cache)
+# Build with DOCKER_BUILDKIT=1 docker build ...
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python -m pip install --upgrade pip setuptools wheel && \
+    python -m pip install --no-cache-dir --prefer-binary -r /tmp/requirements.txt
+
+# Copy app code after deps install (so code changes don't bust the layer with deps)
+COPY scripts/ /app/scripts/
+COPY scripts/app.py /app/app.py
+# copy additional assets if any
+# COPY labels.txt /app/labels.txt
+
+EXPOSE 8000
+
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,0 +1,91 @@
+### for normal deployment with tensorflow serving ###
+
+# # Use the official TensorFlow Serving base image
+# FROM tensorflow/serving:latest
+
+# # Set environment variable to specify the model name (optional)
+# ENV MODEL_NAME=image_classifier
+
+# # Create a directory for the model to be mounted
+# RUN mkdir -p /models/image_classifier
+
+# # Copy the model from the local directory to the container
+# # Assuming the model is saved in the 'saved_models' directory
+
+
+# # Expose the port TensorFlow Serving will use (default is 8501)
+# EXPOSE 8501
+
+# # Start TensorFlow Serving with the model
+# CMD ["tensorflow_model_server", "--model_name=image_classifier", "--model_base_path=/models/image_classifier"]
+
+
+################################################ Dockerfile for wraping tensorflow seving in fast API #################################
+
+# # Base image with TensorFlow Serving
+# FROM tensorflow/serving:latest
+
+# # Install Python and dependencies
+# RUN apt-get update && apt-get install -y python3 python3-pip
+# RUN pip3 install fastapi uvicorn pillow requests
+
+# # Copy your custom app
+# COPY scripts/app.py /app/app.py
+# COPY saved_models/image_classifier /models/image_classifier
+
+# # Expose ports
+# EXPOSE 8501 8000
+
+# # Command to run the app
+# CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
+######################################################################
+
+
+# # Base image with TensorFlow Serving
+# FROM tensorflow/serving:latest
+
+# # Install Python and dependencies
+# RUN apt-get update && apt-get install -y python3 python3-pip
+# RUN pip3 install fastapi uvicorn pillow requests supervisor
+
+# # Create directory for FastAPI and TensorFlow Serving logs
+# RUN mkdir -p /var/log/supervisor
+
+# # Copy your custom FastAPI app
+# COPY scripts/app.py /app/app.py
+# COPY saved_models/image_classifier /models/image_classifier
+
+
+# # Expose ports (TensorFlow Serving will use 8501, FastAPI will use 8000)
+# EXPOSE 8501 8000
+
+# # Create a Supervisor configuration file
+# COPY supervisor.conf /etc/supervisor/conf.d/supervisord.conf
+
+# # Start Supervisor, which will run both TensorFlow Serving and FastAPI
+# CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+
+
+
+############################################################################
+
+# Use the official TensorFlow Serving base image
+FROM tensorflow/serving:latest
+
+# Set environment variable to specify the model name
+ENV MODEL_NAME=image_classifier
+
+# Create a directory for the model to be mounted
+RUN mkdir -p /models/image_classifier
+
+# Copy the model from the local directory to the container
+COPY saved_models/image_classifier /models/image_classifier
+
+# Expose the port TensorFlow Serving will use (default is 8501)
+EXPOSE 8501
+
+# Start TensorFlow Serving with the model
+CMD ["tensorflow_model_server", "--model_name=image_classifier", "--model_base_path=/models/image_classifier"]
+
