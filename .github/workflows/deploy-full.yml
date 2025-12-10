@@ -69,9 +69,7 @@ jobs:
         cache-from: type=registry,ref=${{ steps.tags.outputs.FASTAPI_IMAGE }}:latest
         cache-to: type=inline
 
-    # Optionally build & push TF Serving image (skip if SKIP_TFSERVING_BUILD=true)
     - name: Build and push TF Serving image
-      if: ${{ env.SKIP_TFSERVING_BUILD != 'true' && (secrets.SKIP_TFSERVING_BUILD != 'true') }}
       uses: docker/build-push-action@v5
       with:
         context: .
