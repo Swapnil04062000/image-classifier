@@ -1,0 +1,137 @@
+name: Build & Deploy (FastAPI + TFServing) to ECS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  FASTAPI_REPO: ${{ secrets.FASTAPI_REPO }}
+  TFSERVING_REPO: ${{ secrets.TFSERVING_REPO }}
+  ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
+  ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
+  TASK_FAMILY: ${{ secrets.TASK_DEFINITION_FAMILY }}
+
+jobs:
+  build-and-deploy:
+    name: Build images and deploy to ECS
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up QEMU (for buildx)
+      uses: docker/setup-qemu-action@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      uses: aws-actions/amazon-ecr-login@v2
+
+    # Prepare image tags
+    - name: Set image tags
+      id: tags
+      run: |
+        SHORT_SHA=${GITHUB_SHA::8}
+        FASTAPI_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.FASTAPI_REPO }}
+        TFSERVING_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.TFSERVING_REPO }}
+        echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_OUTPUT
+        echo "FASTAPI_IMAGE=$FASTAPI_IMAGE" >> $GITHUB_OUTPUT
+        echo "TFSERVING_IMAGE=$TFSERVING_IMAGE" >> $GITHUB_OUTPUT
+
+    # Build & push FastAPI image
+    - name: Build and push FastAPI image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: Dockerfile.fastapi
+        push: true
+        tags: |
+          ${{ steps.tags.outputs.FASTAPI_IMAGE }}:latest
+          ${{ steps.tags.outputs.FASTAPI_IMAGE }}:${{ steps.tags.outputs.SHORT_SHA }}
+        cache-from: type=registry,ref=${{ steps.tags.outputs.FASTAPI_IMAGE }}:latest
+        cache-to: type=inline
+
+    # Optionally build & push TF Serving image (skip if SKIP_TFSERVING_BUILD=true)
+    - name: Build and push TF Serving image
+      if: ${{ env.SKIP_TFSERVING_BUILD != 'true' && (secrets.SKIP_TFSERVING_BUILD != 'true') }}
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: Dockerfile.tf_serving
+        push: true
+        tags: |
+          ${{ steps.tags.outputs.TFSERVING_IMAGE }}:latest
+          ${{ steps.tags.outputs.TFSERVING_IMAGE }}:${{ steps.tags.outputs.SHORT_SHA }}
+        cache-from: type=registry,ref=${{ steps.tags.outputs.TFSERVING_IMAGE }}:latest
+        cache-to: type=inline
+
+    # Update ECS task definition: fetch current, replace image URIs, register new revision
+    - name: Fetch current task definition JSON
+      id: td
+      run: |
+        aws ecs describe-task-definition \
+          --task-definition "${{ env.TASK_FAMILY }}" \
+          --region "${{ env.AWS_REGION }}" \
+          --query 'taskDefinition' > taskdef.json
+        # strip unnecessary fields that can't be passed to register-task-definition
+        jq 'del(.status, .revision, .taskDefinitionArn, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy, .placementConstraints, .compatibilities)' taskdef.json > taskdef-clean.json
+        echo "Saved cleaned taskdef to taskdef-clean.json"
+        ls -l taskdef-clean.json
+
+    - name: Update container image URIs in task definition
+      id: replace
+      run: |
+        FASTAPI_URI=${{ steps.tags.outputs.FASTAPI_IMAGE }}:${{ steps.tags.outputs.SHORT_SHA }}
+        TFSERVING_URI=${{ steps.tags.outputs.TFSERVING_IMAGE }}:${{ steps.tags.outputs.SHORT_SHA }}
+        # in case TF image wasn't built in this run, allow using latest in registry (still safe)
+        if [[ "${{ env.SKIP_TFSERVING_BUILD }}" == "true" || "${{ secrets.SKIP_TFSERVING_BUILD }}" == "true" ]]; then
+          TFSERVING_URI=${{ steps.tags.outputs.TFSERVING_IMAGE }}:latest
+        fi
+        echo "Replacing FastAPI image with $FASTAPI_URI"
+        echo "Replacing TFServing image with $TFSERVING_URI"
+        jq --arg fimg "$FASTAPI_URI" --arg timg "$TFSERVING_URI" \
+           '( .containerDefinitions |= map( if .name == "fastapi" then .image = $fimg elif .name == "tf_serving" or .name=="tf_serving" or .name=="tf-serving" or .name=="tf_serving_container" then .image = $timg else . end) )' \
+           taskdef-clean.json > taskdef-new.json
+        cat taskdef-new.json | jq '.' > taskdef-new.pretty.json
+        echo "Wrote taskdef-new.json"
+
+    - name: Register new task definition
+      id: register
+      run: |
+        NEW_DEF_ARN=$(aws ecs register-task-definition \
+          --cli-input-json file://taskdef-new.json \
+          --region "${{ env.AWS_REGION }}" \
+          --query 'taskDefinition.taskDefinitionArn' --output text)
+        echo "NEW_TASKDEF_ARN=${NEW_DEF_ARN}" >> $GITHUB_OUTPUT
+
+    - name: Update ECS service to use new task definition (force new deployment)
+      run: |
+        aws ecs update-service \
+          --cluster "${{ env.ECS_CLUSTER }}" \
+          --service "${{ env.ECS_SERVICE }}" \
+          --task-definition "${{ steps.register.outputs.NEW_TASKDEF_ARN }}" \
+          --force-new-deployment \
+          --region "${{ env.AWS_REGION }}"
+
+    - name: Print deployment status (brief)
+      run: |
+        echo "Updated service ${ECS_SERVICE} in cluster ${ECS_CLUSTER} to taskdef ${{ steps.register.outputs.NEW_TASKDEF_ARN }}"
+        aws ecs describe-services --cluster "${{ env.ECS_CLUSTER }}" --services "${{ env.ECS_SERVICE }}" --region "${{ env.AWS_REGION }}" --query 'services[0].{status:status,desiredCount:desiredCount,runningCount:runningCount}' --output table
