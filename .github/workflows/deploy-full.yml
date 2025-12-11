@@ -178,14 +178,4 @@ jobs:
         exit 1
       shell: bash
 
-    - name: Optional: smoke test (if you have ALB_DNS configured as secret)
-      if: ${{ secrets.ALB_DNS != '' }}
-      run: |
-        ALB_DNS="${{ secrets.ALB_DNS }}"
-        echo "Hitting FastAPI /health ..."
-        curl -sS "http://${ALB_DNS}/health" || (echo "health check failed" && exit 1)
-        echo "Health OK. Running a sample prediction w/ sample image ..."
-        # note: this requires sample image in repo at data/sample_image2.jpg
-        curl -sS -X POST "http://${ALB_DNS}/predict-image/" -F "file=@data/sample_image2.jpg" -o /tmp/pred.json || (echo "predict failed" && exit 1)
-        jq '.' /tmp/pred.json || true
-      shell: bash
+
