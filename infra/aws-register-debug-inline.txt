@@ -1,0 +1,253 @@
+﻿aws : 2025-12-10 12:47:35,722 - MainThread - awscli.clidriver - DEBUG - CLI version: aws-cli/2.32.11 Python/3.13.9 Windows/10 exe/AMD64
+At line:12 char:1
++ aws ecs register-task-definition --cli-input-json $json --region (aws ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (2025-12-10 12:4...ws/10 exe/AMD64:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+2025-12-10 12:47:35,722 - MainThread - awscli.clidriver - DEBUG - Arguments entered to CLI: ['ecs', 'register-task-definition', '--cli-input-json', 
+'{\r\n    memory:  2048,\r\n    executionRoleArn:  arn:aws:iam::336751562613:role/ecsTaskExecutionRole,\r\n    family:  image-classifier-task,\r\n  
+  networkMode:  awsvpc,\r\n    requiresCompatibilities:  [\r\n                                    FARGATE\r\n                                ],\r\n 
+   containerDefinitions:  [\r\n                                 {\r\n                                     name:  tf_serving,\r\n                    
+                 logConfiguration:  {\r\n                                                              logDriver:  awslogs,\r\n                     
+                                         options:  {\r\n                                                                              
+awslogs-region:  us-east-1,\r\n                                                                              awslogs-stream-prefix:  
+tf_serving,\r\n                                                                              awslogs-group:  /ecs/image-classifier\r\n              
+                                                            }\r\n                                                          },\r\n                   
+                  environment:  [\r\n                                                         {\r\n                                                 
+            value:  image_classifier,\r\n                                                             name:  MODEL_NAME\r\n                         
+                                },\r\n                                                         {\r\n                                                
+             value:  /models/image_classifier,\r\n                                                             name:  MODEL_BASE_PATH\r\n           
+                                              }\r\n                                                     ],\r\n                                     
+essential:  true,\r\n                                     image:  
+336751562613.dkr.ecr.us-east-1.amazonaws.com/tf-serving-image-classifier:f9460ea,\r\n                                     portMappings:  [\r\n      
+                                                    {\r\n                                                              protocol:  tcp,\r\n          
+                                                    containerPort:  8501\r\n                                                          }\r\n         
+                                             ]\r\n                                 },\r\n                                 {\r\n                     
+                name:  fastapi,\r\n                                     logConfiguration:  {\r\n                                                    
+          logDriver:  awslogs,\r\n                                                              options:  {\r\n                                     
+                                         awslogs-region:  us-east-1,\r\n                                                                            
+  awslogs-stream-prefix:  fastapi,\r\n                                                                              awslogs-group:  
+/ecs/image-classifier\r\n                                                                          }\r\n                                            
+              },\r\n                                     environment:  [\r\n                                                         {\r\n          
+                                                   value:  localhost,\r\n                                                             name:  
+TF_SERVING_HOST\r\n                                                         },\r\n                                                         {\r\n    
+                                                         value:  8501,\r\n                                                             name:  
+TF_SERVING_REST_PORT\r\n                                                         },\r\n                                                         
+{\r\n                                                             value:  image_classifier,\r\n                                                     
+        name:  MODEL_NAME\r\n                                                         },\r\n                                                        
+ {\r\n                                                             value:  224,\r\n                                                             
+name:  INPUT_SIZE\r\n                                                         }\r\n                                                     ],\r\n      
+                               essential:  true,\r\n                                     image:  
+336751562613.dkr.ecr.us-east-1.amazonaws.com/fastapi-image-classifier:f9460ea,\r\n                                     portMappings:  [\r\n         
+                                                 {\r\n                                                              protocol:  tcp,\r\n             
+                                                 containerPort:  8000\r\n                                                          }\r\n            
+                                          ]\r\n                                 }\r\n                             ],\r\n    cpu:  1024\r\n}\r\n', 
+'--region', 'us-east-1', '--debug']
+2025-12-10 12:47:36,045 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <function add_s3 at 
+0x000001D3E84EDE40>
+2025-12-10 12:47:36,045 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <function add_ddb at 
+0x000001D3E8229E40>
+2025-12-10 12:47:36,046 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <bound method 
+BasicCommand.add_command of <class 'awscli.customizations.configure.configure.ConfigureCommand'>>
+2025-12-10 12:47:36,046 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <function change_name at 
+0x000001D3E8189620>
+2025-12-10 12:47:36,046 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <function change_name at 
+0x000001D3E818A5C0>
+2025-12-10 12:47:36,046 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <function add_history_commands 
+at 0x000001D3E8387CE0>
+2025-12-10 12:47:36,046 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <bound method 
+BasicCommand.add_command of <class 'awscli.customizations.devcommands.CLIDevCommand'>>
+2025-12-10 12:47:36,046 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <bound method 
+BasicCommand.add_command of <class 'awscli.customizations.login.login.LoginCommand'>>
+2025-12-10 12:47:36,047 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <bound method 
+BasicCommand.add_command of <class 'awscli.customizations.login.logout.LogoutCommand'>>
+2025-12-10 12:47:36,047 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <function add_waiters at 
+0x000001D3E84FE5C0>
+2025-12-10 12:47:36,047 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <bound method 
+AliasSubCommandInjector.on_building_command_table of <awscli.alias.AliasSubCommandInjector object at 0x000001D3E84AB4D0>>
+2025-12-10 12:47:36,048 - MainThread - botocore.loaders - DEBUG - Loading JSON file: C:\Program Files\Amazon\AWSCLIV2\awscli\data\cli.json
+2025-12-10 12:47:36,059 - MainThread - botocore.hooks - DEBUG - Event top-level-args-parsed: calling handler <function resolve_types at 
+0x000001D3E8363420>
+2025-12-10 12:47:36,059 - MainThread - botocore.hooks - DEBUG - Event top-level-args-parsed: calling handler <function no_sign_request at 
+0x000001D3E8363740>
+2025-12-10 12:47:36,059 - MainThread - botocore.hooks - DEBUG - Event top-level-args-parsed: calling handler <function resolve_verify_ssl at 
+0x000001D3E83636A0>
+2025-12-10 12:47:36,059 - MainThread - botocore.hooks - DEBUG - Event top-level-args-parsed: calling handler <function resolve_cli_read_timeout at 
+0x000001D3E8363880>
+2025-12-10 12:47:36,059 - MainThread - botocore.hooks - DEBUG - Event top-level-args-parsed: calling handler <function resolve_cli_connect_timeout 
+at 0x000001D3E83637E0>
+2025-12-10 12:47:36,060 - MainThread - botocore.hooks - DEBUG - Event top-level-args-parsed: calling handler <built-in method update of dict object 
+at 0x000001D3E85997C0>
+2025-12-10 12:47:36,060 - MainThread - botocore.session - DEBUG - Setting config variable for region to 'us-east-1'
+2025-12-10 12:47:36,062 - MainThread - awscli.clidriver - DEBUG - CLI version: aws-cli/2.32.11 Python/3.13.9 Windows/10 exe/AMD64
+2025-12-10 12:47:36,062 - MainThread - awscli.clidriver - DEBUG - Arguments entered to CLI: ['ecs', 'register-task-definition', '--cli-input-json', 
+'{\r\n    memory:  2048,\r\n    executionRoleArn:  arn:aws:iam::336751562613:role/ecsTaskExecutionRole,\r\n    family:  image-classifier-task,\r\n  
+  networkMode:  awsvpc,\r\n    requiresCompatibilities:  [\r\n                                    FARGATE\r\n                                ],\r\n 
+   containerDefinitions:  [\r\n                                 {\r\n                                     name:  tf_serving,\r\n                    
+                 logConfiguration:  {\r\n                                                              logDriver:  awslogs,\r\n                     
+                                         options:  {\r\n                                                                              
+awslogs-region:  us-east-1,\r\n                                                                              awslogs-stream-prefix:  
+tf_serving,\r\n                                                                              awslogs-group:  /ecs/image-classifier\r\n              
+                                                            }\r\n                                                          },\r\n                   
+                  environment:  [\r\n                                                         {\r\n                                                 
+            value:  image_classifier,\r\n                                                             name:  MODEL_NAME\r\n                         
+                                },\r\n                                                         {\r\n                                                
+             value:  /models/image_classifier,\r\n                                                             name:  MODEL_BASE_PATH\r\n           
+                                              }\r\n                                                     ],\r\n                                     
+essential:  true,\r\n                                     image:  
+336751562613.dkr.ecr.us-east-1.amazonaws.com/tf-serving-image-classifier:f9460ea,\r\n                                     portMappings:  [\r\n      
+                                                    {\r\n                                                              protocol:  tcp,\r\n          
+                                                    containerPort:  8501\r\n                                                          }\r\n         
+                                             ]\r\n                                 },\r\n                                 {\r\n                     
+                name:  fastapi,\r\n                                     logConfiguration:  {\r\n                                                    
+          logDriver:  awslogs,\r\n                                                              options:  {\r\n                                     
+                                         awslogs-region:  us-east-1,\r\n                                                                            
+  awslogs-stream-prefix:  fastapi,\r\n                                                                              awslogs-group:  
+/ecs/image-classifier\r\n                                                                          }\r\n                                            
+              },\r\n                                     environment:  [\r\n                                                         {\r\n          
+                                                   value:  localhost,\r\n                                                             name:  
+TF_SERVING_HOST\r\n                                                         },\r\n                                                         {\r\n    
+                                                         value:  8501,\r\n                                                             name:  
+TF_SERVING_REST_PORT\r\n                                                         },\r\n                                                         
+{\r\n                                                             value:  image_classifier,\r\n                                                     
+        name:  MODEL_NAME\r\n                                                         },\r\n                                                        
+ {\r\n                                                             value:  224,\r\n                                                             
+name:  INPUT_SIZE\r\n                                                         }\r\n                                                     ],\r\n      
+                               essential:  true,\r\n                                     image:  
+336751562613.dkr.ecr.us-east-1.amazonaws.com/fastapi-image-classifier:f9460ea,\r\n                                     portMappings:  [\r\n         
+                                                 {\r\n                                                              protocol:  tcp,\r\n             
+                                                 containerPort:  8000\r\n                                                          }\r\n            
+                                          ]\r\n                                 }\r\n                             ],\r\n    cpu:  1024\r\n}\r\n', 
+'--region', 'us-east-1', '--debug']
+2025-12-10 12:47:36,062 - MainThread - botocore.hooks - DEBUG - Event session-initialized: calling handler <function add_timestamp_parser at 
+0x000001D3E84FD1C0>
+2025-12-10 12:47:36,062 - MainThread - botocore.hooks - DEBUG - Event session-initialized: calling handler <function register_uri_param_handler at 
+0x000001D3E731FA60>
+2025-12-10 12:47:36,063 - MainThread - botocore.hooks - DEBUG - Event session-initialized: calling handler <function add_binary_formatter at 
+0x000001D3E7F73920>
+2025-12-10 12:47:36,063 - MainThread - botocore.hooks - DEBUG - Event session-initialized: calling handler <function no_pager_handler at 
+0x000001D3E7D11A80>
+2025-12-10 12:47:36,063 - MainThread - botocore.hooks - DEBUG - Event session-initialized: calling handler <function 
+inject_assume_role_provider_cache at 0x000001D3E7F72E80>
+2025-12-10 12:47:36,073 - MainThread - botocore.utils - DEBUG - IMDS ENDPOINT: http://169.254.169.254/
+2025-12-10 12:47:36,077 - MainThread - botocore.hooks - DEBUG - Event session-initialized: calling handler <function attach_history_handler at 
+0x000001D3E83865C0>
+2025-12-10 12:47:36,077 - MainThread - botocore.hooks - DEBUG - Event session-initialized: calling handler <function inject_json_file_cache at 
+0x000001D3E8220540>
+2025-12-10 12:47:36,218 - MainThread - botocore.loaders - DEBUG - Loading JSON file: C:\Program 
+Files\Amazon\AWSCLIV2\awscli\botocore\data\ecs\2014-11-13\service-2.json
+2025-12-10 12:47:36,247 - MainThread - botocore.hooks - DEBUG - Event building-command-table.ecs: calling handler <function inject_commands at 
+0x000001D3E82AFF60>
+2025-12-10 12:47:36,247 - MainThread - botocore.hooks - DEBUG - Event building-command-table.ecs: calling handler <function add_waiters at 
+0x000001D3E84FE5C0>
+2025-12-10 12:47:36,399 - MainThread - botocore.loaders - DEBUG - Loading JSON file: C:\Program 
+Files\Amazon\AWSCLIV2\awscli\botocore\data\ecs\2014-11-13\waiters-2.json
+2025-12-10 12:47:36,402 - MainThread - botocore.hooks - DEBUG - Event building-command-table.ecs: calling handler <bound method 
+AliasSubCommandInjector.on_building_command_table of <awscli.alias.AliasSubCommandInjector object at 0x000001D3E84AB4D0>>
+2025-12-10 12:47:36,405 - MainThread - awscli.clidriver - DEBUG - OrderedDict({'family': <awscli.arguments.CLIArgument object at 
+0x000001D3E98DCAD0>, 'task-role-arn': <awscli.arguments.CLIArgument object at 0x000001D3E98ECB90>, 'execution-role-arn': 
+<awscli.arguments.CLIArgument object at 0x000001D3E98ECCD0>, 'network-mode': <awscli.arguments.CLIArgument object at 0x000001D3E98D48A0>, 
+'container-definitions': <awscli.arguments.ListArgument object at 0x000001D3E98DCC20>, 'volumes': <awscli.arguments.ListArgument object at 
+0x000001D3E98ECE10>, 'placement-constraints': <awscli.arguments.ListArgument object at 0x000001D3E98ECF50>, 'requires-compatibilities': 
+<awscli.arguments.ListArgument object at 0x000001D3E98D49D0>, 'cpu': <awscli.arguments.CLIArgument object at 0x000001D3E98D4B00>, 'memory': 
+<awscli.arguments.CLIArgument object at 0x000001D3E8563770>, 'tags': <awscli.arguments.ListArgument object at 0x000001D3E98D4C30>, 'pid-mode': 
+<awscli.arguments.CLIArgument object at 0x000001D3E86719D0>, 'ipc-mode': <awscli.arguments.CLIArgument object at 0x000001D3E86718C0>, 
+'proxy-configuration': <awscli.arguments.CLIArgument object at 0x000001D3E9821950>, 'inference-accelerators': <awscli.arguments.ListArgument object 
+at 0x000001D3E8563890>, 'ephemeral-storage': <awscli.arguments.CLIArgument object at 0x000001D3E9821A50>, 'runtime-platform': 
+<awscli.arguments.CLIArgument object at 0x000001D3E9898B90>, 'enable-fault-injection': <awscli.arguments.BooleanArgument object at 
+0x000001D3E98DCD70>, 'no-enable-fault-injection': <awscli.arguments.BooleanArgument object at 0x000001D3E98ED090>})
+2025-12-10 12:47:36,405 - MainThread - botocore.hooks - DEBUG - Event building-argument-table.ecs.register-task-definition: calling handler 
+<function add_streaming_output_arg at 0x000001D3E84FC860>
+2025-12-10 12:47:36,406 - MainThread - botocore.hooks - DEBUG - Event building-argument-table.ecs.register-task-definition: calling handler 
+<function rename_arg.<locals>._rename_arg at 0x000001D3E85845E0>
+2025-12-10 12:47:36,406 - MainThread - botocore.hooks - DEBUG - Event building-argument-table.ecs.register-task-definition: calling handler 
+<function add_cli_input_json at 0x000001D3E7F84220>
+2025-12-10 12:47:36,406 - MainThread - botocore.hooks - DEBUG - Event building-argument-table.ecs.register-task-definition: calling handler 
+<function add_cli_input_yaml at 0x000001D3E7F84FE0>
+2025-12-10 12:47:36,407 - MainThread - botocore.hooks - DEBUG - Event building-argument-table.ecs.register-task-definition: calling handler 
+<function unify_paging_params at 0x000001D3E822A660>
+2025-12-10 12:47:36,605 - MainThread - botocore.loaders - DEBUG - Loading JSON file: C:\Program 
+Files\Amazon\AWSCLIV2\awscli\botocore\data\ecs\2014-11-13\paginators-1.json
+2025-12-10 12:47:36,605 - MainThread - botocore.hooks - DEBUG - Event building-argument-table.ecs.register-task-definition: calling handler 
+<function add_generate_skeleton at 0x000001D3E8361D00>
+2025-12-10 12:47:36,606 - MainThread - botocore.hooks - DEBUG - Event before-building-argument-table-parser.ecs.register-task-definition: calling 
+handler <bound method OverrideRequiredArgsArgument.override_required_args of <awscli.customizations.cliinput.CliInputJSONArgument object at 
+0x000001D3E98DD010>>
+2025-12-10 12:47:36,606 - MainThread - botocore.hooks - DEBUG - Event before-building-argument-table-parser.ecs.register-task-definition: calling 
+handler <bound method OverrideRequiredArgsArgument.override_required_args of <awscli.customizations.cliinput.CliInputYAMLArgument object at 
+0x000001D3E98DD160>>
+2025-12-10 12:47:36,606 - MainThread - botocore.hooks - DEBUG - Event before-building-argument-table-parser.ecs.register-task-definition: calling 
+handler <bound method GenerateCliSkeletonArgument.override_required_args of <awscli.customizations.generatecliskeleton.GenerateCliSkeletonArgument 
+object at 0x000001D3E98DD2B0>>
+2025-12-10 12:47:36,606 - MainThread - botocore.hooks - DEBUG - Event building-command-table.ecs_register-task-definition: calling handler 
+<function add_waiters at 0x000001D3E84FE5C0>
+2025-12-10 12:47:36,606 - MainThread - botocore.hooks - DEBUG - Event building-command-table.ecs_register-task-definition: calling handler <bound 
+method AliasSubCommandInjector.on_building_command_table of <awscli.alias.AliasSubCommandInjector object at 0x000001D3E84AB4D0>>
+2025-12-10 12:47:36,608 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.family: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,609 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.task-role-arn: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,609 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.execution-role-arn: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,609 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.network-mode: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,609 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.container-definitions: calling 
+handler <awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,609 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.volumes: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,609 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.placement-constraints: calling 
+handler <awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,609 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.requires-compatibilities: calling 
+handler <awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,609 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.cpu: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,610 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.memory: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,610 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.tags: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,610 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.pid-mode: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,610 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.ipc-mode: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,610 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.proxy-configuration: calling 
+handler <awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,610 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.inference-accelerators: calling 
+handler <awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,610 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.ephemeral-storage: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,610 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.runtime-platform: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,611 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.enable-fault-injection: calling 
+handler <awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,611 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.cli-input-json: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,611 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.cli-input-yaml: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,611 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.generate-cli-skeleton: calling 
+handler <awscli.paramfile.URIArgumentHandler object at 0x000001D3E85A4050>
+2025-12-10 12:47:36,611 - MainThread - botocore.hooks - DEBUG - Event calling-command.ecs.register-task-definition: calling handler <bound method 
+CliInputArgument.add_to_call_parameters of <awscli.customizations.cliinput.CliInputJSONArgument object at 0x000001D3E98DD010>>
+2025-12-10 12:47:36,611 - MainThread - awscli.clidriver - DEBUG - Exception caught in main()
+Traceback (most recent call last):
+  File "awscli\customizations\cliinput.py", line 131, in _load_parameters
+  File "json\__init__.py", line 346, in loads
+  File "json\decoder.py", line 345, in decode
+  File "json\decoder.py", line 361, in raw_decode
+json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 2 column 5 (char 7)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "awscli\clidriver.py", line 530, in main
+  File "awscli\clidriver.py", line 667, in __call__
+  File "awscli\clidriver.py", line 857, in __call__
+  File "awscli\clidriver.py", line 968, in _emit_first_non_none_response
+  File "awscli\botocore\session.py", line 753, in emit_first_non_none_response
+  File "awscli\botocore\hooks.py", line 255, in emit
+  File "awscli\botocore\hooks.py", line 238, in _emit
+  File "awscli\customizations\cliinput.py", line 64, in add_to_call_parameters
+  File "awscli\customizations\cliinput.py", line 133, in _load_parameters
+awscli.argprocess.ParamError: Error parsing parameter 'cli-input-json': Invalid JSON received.
+
+Error parsing parameter 'cli-input-json': Invalid JSON received.

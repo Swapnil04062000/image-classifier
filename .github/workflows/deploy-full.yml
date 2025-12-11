@@ -1,135 +1,191 @@
-name: Build & Deploy (FastAPI + TFServing) to ECS
+name: CI/CD - Build Push & Deploy
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main, master ]
   workflow_dispatch:
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   FASTAPI_REPO: ${{ secrets.FASTAPI_REPO }}
-  TFSERVING_REPO: ${{ secrets.TFSERVING_REPO }}
+  TF_REPO: ${{ secrets.TF_REPO }}
+  MODEL_BUCKET: ${{ secrets.MODEL_BUCKET }}
+  TASK_FAMILY: ${{ secrets.TASK_FAMILY }}
   ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
   ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
-  TASK_FAMILY: ${{ secrets.TASK_DEFINITION_FAMILY }}
+  FASTAPI_CONTAINER_NAME: ${{ secrets.FASTAPI_CONTAINER_NAME }}
+  TF_CONTAINER_NAME: ${{ secrets.TF_CONTAINER_NAME }}
 
 jobs:
   build-and-deploy:
-    name: Build images and deploy to ECS
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
 
     steps:
-    - name: Checkout code
+    - name: Checkout repo
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Set up QEMU (for buildx)
-      uses: docker/setup-qemu-action@v2
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
 
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+        aws-region: ${{ env.AWS_REGION }}
 
-    - name: Login to Amazon ECR
-      uses: aws-actions/amazon-ecr-login@v2
-
-    # Prepare image tags
-    - name: Set image tags
-      id: tags
+    - name: Debug identity (for troubleshooting)
       run: |
-        SHORT_SHA=${GITHUB_SHA::8}
-        FASTAPI_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.FASTAPI_REPO }}
-        TFSERVING_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.TFSERVING_REPO }}
-        echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_OUTPUT
-        echo "FASTAPI_IMAGE=$FASTAPI_IMAGE" >> $GITHUB_OUTPUT
-        echo "TFSERVING_IMAGE=$TFSERVING_IMAGE" >> $GITHUB_OUTPUT
+        echo "Caller identity:"
+        aws sts get-caller-identity
 
-    # Build & push FastAPI image
-    - name: Build and push FastAPI image
+    - name: Ensure ECR repositories exist
+      run: |
+        set -e
+        echo "Checking/creating ECR repositories..."
+        aws ecr describe-repositories --repository-names "${FASTAPI_REPO}" --region ${AWS_REGION} >/dev/null 2>&1 || \
+          aws ecr create-repository --repository-name "${FASTAPI_REPO}" --region ${AWS_REGION}
+        aws ecr describe-repositories --repository-names "${TF_REPO}" --region ${AWS_REGION} >/dev/null 2>&1 || \
+          aws ecr create-repository --repository-name "${TF_REPO}" --region ${AWS_REGION}
+      shell: bash
+
+    - name: Log in to ECR (Docker)
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+        username: AWS
+        password: ${{ steps.configure-aws-credentials.outputs.secret_access_key }} # fallback; configure-aws-credentials sets creds in env
+
+    - name: Build & push FastAPI image (multi-tag)
+      id: fastapi_build
       uses: docker/build-push-action@v5
       with:
         context: .
         file: Dockerfile.fastapi
         push: true
+        platforms: linux/amd64
         tags: |
-          ${{ steps.tags.outputs.FASTAPI_IMAGE }}:latest
-          ${{ steps.tags.outputs.FASTAPI_IMAGE }}:${{ steps.tags.outputs.SHORT_SHA }}
-        cache-from: type=registry,ref=${{ steps.tags.outputs.FASTAPI_IMAGE }}:latest
-        cache-to: type=inline
+          ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.FASTAPI_REPO }}:latest
+          ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.FASTAPI_REPO }}:${{ github.sha }}
 
-    - name: Build and push TF Serving image
+    - name: Prepare saved_models for TF image build (if missing, try S3)
+      id: prepare_model
+      run: |
+        set -e
+        if [ -d "saved_models/image_classifier" ]; then
+          echo "Local saved_models found; will use it."
+        else
+          echo "Local saved_models not found. Attempting to sync from S3 s3://${MODEL_BUCKET}/image_classifier"
+          aws s3 ls "s3://${MODEL_BUCKET}/image_classifier/" --region ${AWS_REGION} || (echo "No model in S3 at s3://${MODEL_BUCKET}/image_classifier" && exit 1)
+          mkdir -p saved_models
+          aws s3 sync "s3://${MODEL_BUCKET}/image_classifier" saved_models/image_classifier --region ${AWS_REGION}
+          echo "Model synced from S3 to saved_models/image_classifier"
+        fi
+      shell: bash
+
+    - name: Build & push TF Serving image (multi-tag)
+      id: tf_build
       uses: docker/build-push-action@v5
       with:
         context: .
         file: Dockerfile.tf_serving
         push: true
+        platforms: linux/amd64
         tags: |
-          ${{ steps.tags.outputs.TFSERVING_IMAGE }}:latest
-          ${{ steps.tags.outputs.TFSERVING_IMAGE }}:${{ steps.tags.outputs.SHORT_SHA }}
-        cache-from: type=registry,ref=${{ steps.tags.outputs.TFSERVING_IMAGE }}:latest
-        cache-to: type=inline
+          ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.TF_REPO }}:latest
+          ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.TF_REPO }}:${{ github.sha }}
 
-    # Update ECS task definition: fetch current, replace image URIs, register new revision
-    - name: Fetch current task definition JSON
-      id: td
+    - name: Get current task definition JSON
+      id: get_td
       run: |
-        aws ecs describe-task-definition \
-          --task-definition "${{ env.TASK_FAMILY }}" \
-          --region "${{ env.AWS_REGION }}" \
-          --query 'taskDefinition' > taskdef.json
-        # strip unnecessary fields that can't be passed to register-task-definition
-        jq 'del(.status, .revision, .taskDefinitionArn, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy, .placementConstraints, .compatibilities)' taskdef.json > taskdef-clean.json
-        echo "Saved cleaned taskdef to taskdef-clean.json"
-        ls -l taskdef-clean.json
+        aws ecs describe-task-definition --task-definition "${TASK_FAMILY}" --region ${AWS_REGION} > td-full.json
+        jq '.taskDefinition' td-full.json > td.json
+        echo "::set-output name=tdfile::td.json"
+      shell: bash
 
-    - name: Update container image URIs in task definition
-      id: replace
+    - name: Create new task definition registration payload
+      id: prepare_td
       run: |
-        FASTAPI_URI=${{ steps.tags.outputs.FASTAPI_IMAGE }}:${{ steps.tags.outputs.SHORT_SHA }}
-        TFSERVING_URI=${{ steps.tags.outputs.TFSERVING_IMAGE }}:${{ steps.tags.outputs.SHORT_SHA }}
-        # in case TF image wasn't built in this run, allow using latest in registry (still safe)
-        if [[ "${{ env.SKIP_TFSERVING_BUILD }}" == "true" || "${{ secrets.SKIP_TFSERVING_BUILD }}" == "true" ]]; then
-          TFSERVING_URI=${{ steps.tags.outputs.TFSERVING_IMAGE }}:latest
-        fi
-        echo "Replacing FastAPI image with $FASTAPI_URI"
-        echo "Replacing TFServing image with $TFSERVING_URI"
-        jq --arg fimg "$FASTAPI_URI" --arg timg "$TFSERVING_URI" \
-           '( .containerDefinitions |= map( if .name == "fastapi" then .image = $fimg elif .name == "tf_serving" or .name=="tf_serving" or .name=="tf-serving" or .name=="tf_serving_container" then .image = $timg else . end) )' \
-           taskdef-clean.json > taskdef-new.json
-        cat taskdef-new.json | jq '.' > taskdef-new.pretty.json
-        echo "Wrote taskdef-new.json"
+        set -e
+        TD="td.json"
+        REG="taskdef-register.json"
+
+        # Build a skeleton payload suitable for register-task-definition with necessary fields
+        jq '{
+          family: .family,
+          taskRoleArn: .taskRoleArn,
+          executionRoleArn: .executionRoleArn,
+          networkMode: .networkMode,
+          containerDefinitions: .containerDefinitions,
+          volumes: .volumes,
+          placementConstraints: .placementConstraints,
+          requiresCompatibilities: .requiresCompatibilities,
+          cpu: .cpu,
+          memory: .memory
+        }' $TD > $REG
+
+        # Update container image URIs for FastAPI & TF containers (match by container name)
+        FASTAPI_IMG="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${FASTAPI_REPO}:latest"
+        TF_IMG="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${TF_REPO}:latest"
+
+        # Replace image for the containers with matching names
+        jq --arg fname "${FASTAPI_CONTAINER_NAME}" --arg fimg "${FASTAPI_IMG}" \
+           --arg tname "${TF_CONTAINER_NAME}" --arg timg "${TF_IMG}" \
+           '(.containerDefinitions[] | select(.name == $fname) ).image = $fimg |
+            (.containerDefinitions[] | select(.name == $tname) ).image = $timg' \
+           $REG > ${REG}.tmp && mv ${REG}.tmp $REG
+
+        echo "Prepared taskdef payload:"
+        jq '.' $REG
+        echo "::set-output name=registerfile::${REG}"
+      shell: bash
 
     - name: Register new task definition
-      id: register
+      id: register_td
       run: |
-        NEW_DEF_ARN=$(aws ecs register-task-definition \
-          --cli-input-json file://taskdef-new.json \
-          --region "${{ env.AWS_REGION }}" \
-          --query 'taskDefinition.taskDefinitionArn' --output text)
-        echo "NEW_TASKDEF_ARN=${NEW_DEF_ARN}" >> $GITHUB_OUTPUT
+        REG="taskdef-register.json"
+        aws ecs register-task-definition --cli-input-json file://$REG --region ${AWS_REGION} > register-out.json
+        echo "Registered new task definition:"
+        jq '.taskDefinition.taskDefinitionArn' register-out.json
+      shell: bash
 
-    - name: Update ECS service to use new task definition (force new deployment)
+    - name: Update ECS service to force new deployment
       run: |
-        aws ecs update-service \
-          --cluster "${{ env.ECS_CLUSTER }}" \
-          --service "${{ env.ECS_SERVICE }}" \
-          --task-definition "${{ steps.register.outputs.NEW_TASKDEF_ARN }}" \
-          --force-new-deployment \
-          --region "${{ env.AWS_REGION }}"
+        aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --force-new-deployment --region ${AWS_REGION}
+        echo "Triggered service update."
+      shell: bash
 
-    - name: Print deployment status (brief)
+    - name: Wait for deployment to stabilize (poll)
       run: |
-        echo "Updated service ${ECS_SERVICE} in cluster ${ECS_CLUSTER} to taskdef ${{ steps.register.outputs.NEW_TASKDEF_ARN }}"
-        aws ecs describe-services --cluster "${{ env.ECS_CLUSTER }}" --services "${{ env.ECS_SERVICE }}" --region "${{ env.AWS_REGION }}" --query 'services[0].{status:status,desiredCount:desiredCount,runningCount:runningCount}' --output table
+        set -e
+        CLUSTER="${ECS_CLUSTER}"
+        SERVICE="${ECS_SERVICE}"
+        REGION="${AWS_REGION}"
+        echo "Waiting for service to have runningCount >= desiredCount ..."
+        for i in {1..40}; do
+          out=$(aws ecs describe-services --cluster "$CLUSTER" --services "$SERVICE" --region "$REGION" --query "services[0].[desiredCount,runningCount]" --output text)
+          desired=$(echo $out | awk '{print $1}')
+          running=$(echo $out | awk '{print $2}')
+          echo "desired=$desired running=$running"
+          if [ "$desired" != "" ] && [ "$running" != "" ] && [ "$running" -ge "$desired" ]; then
+            echo "Deployment looks healthy."
+            exit 0
+          fi
+          sleep 10
+        done
+        echo "Timed out waiting for deployment to stabilize."
+        exit 1
+      shell: bash
+
+    - name: Optional: smoke test (if you have ALB_DNS configured as secret)
+      if: ${{ secrets.ALB_DNS != '' }}
+      run: |
+        ALB_DNS="${{ secrets.ALB_DNS }}"
+        echo "Hitting FastAPI /health ..."
+        curl -sS "http://${ALB_DNS}/health" || (echo "health check failed" && exit 1)
+        echo "Health OK. Running a sample prediction w/ sample image ..."
+        # note: this requires sample image in repo at data/sample_image2.jpg
+        curl -sS -X POST "http://${ALB_DNS}/predict-image/" -F "file=@data/sample_image2.jpg" -o /tmp/pred.json || (echo "predict failed" && exit 1)
+        jq '.' /tmp/pred.json || true
+      shell: bash

@@ -1,0 +1,48 @@
+{
+  "family": "image-classifier-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "1024",
+  "memory": "2048",
+  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "tf_serving",
+      "image": "TF_IMAGE_PLACEHOLDER",
+      "essential": true,
+      "portMappings": [
+        { "containerPort": 8501, "protocol": "tcp" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/image-classifier",
+          "awslogs-region": "REGION_PLACEHOLDER",
+          "awslogs-stream-prefix": "tf_serving"
+        }
+      }
+    },
+    {
+      "name": "fastapi",
+      "image": "FASTAPI_IMAGE_PLACEHOLDER",
+      "essential": true,
+      "portMappings": [
+        { "containerPort": 8000, "protocol": "tcp" }
+      ],
+      "environment": [
+        { "name": "TF_SERVING_HOST", "value": "localhost" },
+        { "name": "TF_SERVING_REST_PORT", "value": "8501" },
+        { "name": "MODEL_NAME", "value": "image_classifier" },
+        { "name": "INPUT_SIZE", "value": "224" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/image-classifier",
+          "awslogs-region": "REGION_PLACEHOLDER",
+          "awslogs-stream-prefix": "fastapi"
+        }
+      }
+    }
+  ]
+}

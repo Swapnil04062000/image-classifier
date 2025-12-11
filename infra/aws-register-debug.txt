@@ -1,0 +1,181 @@
+﻿aws : 2025-12-10 12:44:25,864 - MainThread - awscli.clidriver - DEBUG - CLI version: aws-cli/2.32.11 Python/3.13.9 Windows/10 exe/AMD64
+At line:1 char:1
++ aws ecs register-task-definition --cli-input-json "file://$abs" --reg ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (2025-12-10 12:4...ws/10 exe/AMD64:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+2025-12-10 12:44:25,865 - MainThread - awscli.clidriver - DEBUG - Arguments entered to CLI: ['ecs', 'register-task-definition', '--cli-input-json', 
+'file://C:\\Users\\Dell\\Documents\\Freelancing template\\Image_classification_template2\\infra\\task-def-final.json', '--region', 'us-east-1', 
+'--debug']
+2025-12-10 12:44:25,995 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <function add_s3 at 
+0x0000022968BDDF80>
+2025-12-10 12:44:25,995 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <function add_ddb at 
+0x0000022968919F80>
+2025-12-10 12:44:25,995 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <bound method 
+BasicCommand.add_command of <class 'awscli.customizations.configure.configure.ConfigureCommand'>>
+2025-12-10 12:44:25,996 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <function change_name at 
+0x0000022968819760>
+2025-12-10 12:44:25,996 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <function change_name at 
+0x000002296881A700>
+2025-12-10 12:44:25,996 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <function add_history_commands 
+at 0x0000022968A6FE20>
+2025-12-10 12:44:25,996 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <bound method 
+BasicCommand.add_command of <class 'awscli.customizations.devcommands.CLIDevCommand'>>
+2025-12-10 12:44:25,996 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <bound method 
+BasicCommand.add_command of <class 'awscli.customizations.login.login.LoginCommand'>>
+2025-12-10 12:44:25,996 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <bound method 
+BasicCommand.add_command of <class 'awscli.customizations.login.logout.LogoutCommand'>>
+2025-12-10 12:44:25,996 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <function add_waiters at 
+0x0000022968BEE700>
+2025-12-10 12:44:25,996 - MainThread - botocore.hooks - DEBUG - Event building-command-table.main: calling handler <bound method 
+AliasSubCommandInjector.on_building_command_table of <awscli.alias.AliasSubCommandInjector object at 0x0000022968B9B4D0>>
+2025-12-10 12:44:25,997 - MainThread - botocore.loaders - DEBUG - Loading JSON file: C:\Program Files\Amazon\AWSCLIV2\awscli\data\cli.json
+2025-12-10 12:44:26,001 - MainThread - botocore.hooks - DEBUG - Event top-level-args-parsed: calling handler <function resolve_types at 
+0x0000022968A53560>
+2025-12-10 12:44:26,001 - MainThread - botocore.hooks - DEBUG - Event top-level-args-parsed: calling handler <function no_sign_request at 
+0x0000022968A53880>
+2025-12-10 12:44:26,001 - MainThread - botocore.hooks - DEBUG - Event top-level-args-parsed: calling handler <function resolve_verify_ssl at 
+0x0000022968A537E0>
+2025-12-10 12:44:26,001 - MainThread - botocore.hooks - DEBUG - Event top-level-args-parsed: calling handler <function resolve_cli_read_timeout at 
+0x0000022968A539C0>
+2025-12-10 12:44:26,002 - MainThread - botocore.hooks - DEBUG - Event top-level-args-parsed: calling handler <function resolve_cli_connect_timeout 
+at 0x0000022968A53920>
+2025-12-10 12:44:26,002 - MainThread - botocore.hooks - DEBUG - Event top-level-args-parsed: calling handler <built-in method update of dict object 
+at 0x0000022968C89780>
+2025-12-10 12:44:26,002 - MainThread - botocore.session - DEBUG - Setting config variable for region to 'us-east-1'
+2025-12-10 12:44:26,003 - MainThread - awscli.clidriver - DEBUG - CLI version: aws-cli/2.32.11 Python/3.13.9 Windows/10 exe/AMD64
+2025-12-10 12:44:26,003 - MainThread - awscli.clidriver - DEBUG - Arguments entered to CLI: ['ecs', 'register-task-definition', '--cli-input-json', 
+'file://C:\\Users\\Dell\\Documents\\Freelancing template\\Image_classification_template2\\infra\\task-def-final.json', '--region', 'us-east-1', 
+'--debug']
+2025-12-10 12:44:26,003 - MainThread - botocore.hooks - DEBUG - Event session-initialized: calling handler <function add_timestamp_parser at 
+0x0000022968BED300>
+2025-12-10 12:44:26,003 - MainThread - botocore.hooks - DEBUG - Event session-initialized: calling handler <function register_uri_param_handler at 
+0x00000229679CFBA0>
+2025-12-10 12:44:26,003 - MainThread - botocore.hooks - DEBUG - Event session-initialized: calling handler <function add_binary_formatter at 
+0x0000022968613A60>
+2025-12-10 12:44:26,004 - MainThread - botocore.hooks - DEBUG - Event session-initialized: calling handler <function no_pager_handler at 
+0x00000229683C1BC0>
+2025-12-10 12:44:26,004 - MainThread - botocore.hooks - DEBUG - Event session-initialized: calling handler <function 
+inject_assume_role_provider_cache at 0x0000022968612FC0>
+2025-12-10 12:44:26,007 - MainThread - botocore.utils - DEBUG - IMDS ENDPOINT: http://169.254.169.254/
+2025-12-10 12:44:26,013 - MainThread - botocore.hooks - DEBUG - Event session-initialized: calling handler <function attach_history_handler at 
+0x0000022968A6E700>
+2025-12-10 12:44:26,013 - MainThread - botocore.hooks - DEBUG - Event session-initialized: calling handler <function inject_json_file_cache at 
+0x0000022968910680>
+2025-12-10 12:44:26,103 - MainThread - botocore.loaders - DEBUG - Loading JSON file: C:\Program 
+Files\Amazon\AWSCLIV2\awscli\botocore\data\ecs\2014-11-13\service-2.json
+2025-12-10 12:44:26,123 - MainThread - botocore.hooks - DEBUG - Event building-command-table.ecs: calling handler <function inject_commands at 
+0x00000229689B00E0>
+2025-12-10 12:44:26,123 - MainThread - botocore.hooks - DEBUG - Event building-command-table.ecs: calling handler <function add_waiters at 
+0x0000022968BEE700>
+2025-12-10 12:44:26,248 - MainThread - botocore.loaders - DEBUG - Loading JSON file: C:\Program 
+Files\Amazon\AWSCLIV2\awscli\botocore\data\ecs\2014-11-13\waiters-2.json
+2025-12-10 12:44:26,249 - MainThread - botocore.hooks - DEBUG - Event building-command-table.ecs: calling handler <bound method 
+AliasSubCommandInjector.on_building_command_table of <awscli.alias.AliasSubCommandInjector object at 0x0000022968B9B4D0>>
+2025-12-10 12:44:26,252 - MainThread - awscli.clidriver - DEBUG - OrderedDict({'family': <awscli.arguments.CLIArgument object at 
+0x0000022969FCCAD0>, 'task-role-arn': <awscli.arguments.CLIArgument object at 0x0000022969FDCB90>, 'execution-role-arn': 
+<awscli.arguments.CLIArgument object at 0x0000022969FDCCD0>, 'network-mode': <awscli.arguments.CLIArgument object at 0x0000022969FC88A0>, 
+'container-definitions': <awscli.arguments.ListArgument object at 0x0000022969FCCC20>, 'volumes': <awscli.arguments.ListArgument object at 
+0x0000022969FDCE10>, 'placement-constraints': <awscli.arguments.ListArgument object at 0x0000022969FDCF50>, 'requires-compatibilities': 
+<awscli.arguments.ListArgument object at 0x0000022969FC89D0>, 'cpu': <awscli.arguments.CLIArgument object at 0x0000022969FC8B00>, 'memory': 
+<awscli.arguments.CLIArgument object at 0x0000022968C53770>, 'tags': <awscli.arguments.ListArgument object at 0x0000022969FC8C30>, 'pid-mode': 
+<awscli.arguments.CLIArgument object at 0x0000022968D619D0>, 'ipc-mode': <awscli.arguments.CLIArgument object at 0x0000022968D618C0>, 
+'proxy-configuration': <awscli.arguments.CLIArgument object at 0x0000022969F11950>, 'inference-accelerators': <awscli.arguments.ListArgument object 
+at 0x0000022968C53890>, 'ephemeral-storage': <awscli.arguments.CLIArgument object at 0x0000022969F11A50>, 'runtime-platform': 
+<awscli.arguments.CLIArgument object at 0x0000022969F88B90>, 'enable-fault-injection': <awscli.arguments.BooleanArgument object at 
+0x0000022969FCCD70>, 'no-enable-fault-injection': <awscli.arguments.BooleanArgument object at 0x0000022969FDD090>})
+2025-12-10 12:44:26,253 - MainThread - botocore.hooks - DEBUG - Event building-argument-table.ecs.register-task-definition: calling handler 
+<function add_streaming_output_arg at 0x0000022968BEC9A0>
+2025-12-10 12:44:26,253 - MainThread - botocore.hooks - DEBUG - Event building-argument-table.ecs.register-task-definition: calling handler 
+<function rename_arg.<locals>._rename_arg at 0x0000022968C74720>
+2025-12-10 12:44:26,253 - MainThread - botocore.hooks - DEBUG - Event building-argument-table.ecs.register-task-definition: calling handler 
+<function add_cli_input_json at 0x0000022968624360>
+2025-12-10 12:44:26,254 - MainThread - botocore.hooks - DEBUG - Event building-argument-table.ecs.register-task-definition: calling handler 
+<function add_cli_input_yaml at 0x0000022968625120>
+2025-12-10 12:44:26,254 - MainThread - botocore.hooks - DEBUG - Event building-argument-table.ecs.register-task-definition: calling handler 
+<function unify_paging_params at 0x000002296891A7A0>
+2025-12-10 12:44:26,369 - MainThread - botocore.loaders - DEBUG - Loading JSON file: C:\Program 
+Files\Amazon\AWSCLIV2\awscli\botocore\data\ecs\2014-11-13\paginators-1.json
+2025-12-10 12:44:26,370 - MainThread - botocore.hooks - DEBUG - Event building-argument-table.ecs.register-task-definition: calling handler 
+<function add_generate_skeleton at 0x0000022968A51E40>
+2025-12-10 12:44:26,371 - MainThread - botocore.hooks - DEBUG - Event before-building-argument-table-parser.ecs.register-task-definition: calling 
+handler <bound method OverrideRequiredArgsArgument.override_required_args of <awscli.customizations.cliinput.CliInputJSONArgument object at 
+0x0000022969FCD010>>
+2025-12-10 12:44:26,371 - MainThread - botocore.hooks - DEBUG - Event before-building-argument-table-parser.ecs.register-task-definition: calling 
+handler <bound method OverrideRequiredArgsArgument.override_required_args of <awscli.customizations.cliinput.CliInputYAMLArgument object at 
+0x0000022969FCD160>>
+2025-12-10 12:44:26,371 - MainThread - botocore.hooks - DEBUG - Event before-building-argument-table-parser.ecs.register-task-definition: calling 
+handler <bound method GenerateCliSkeletonArgument.override_required_args of <awscli.customizations.generatecliskeleton.GenerateCliSkeletonArgument 
+object at 0x0000022969FCD2B0>>
+2025-12-10 12:44:26,371 - MainThread - botocore.hooks - DEBUG - Event building-command-table.ecs_register-task-definition: calling handler 
+<function add_waiters at 0x0000022968BEE700>
+2025-12-10 12:44:26,371 - MainThread - botocore.hooks - DEBUG - Event building-command-table.ecs_register-task-definition: calling handler <bound 
+method AliasSubCommandInjector.on_building_command_table of <awscli.alias.AliasSubCommandInjector object at 0x0000022968B9B4D0>>
+2025-12-10 12:44:26,374 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.family: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,374 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.task-role-arn: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,374 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.execution-role-arn: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,375 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.network-mode: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,375 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.container-definitions: calling 
+handler <awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,375 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.volumes: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,375 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.placement-constraints: calling 
+handler <awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,375 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.requires-compatibilities: calling 
+handler <awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,375 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.cpu: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,375 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.memory: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,376 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.tags: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,376 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.pid-mode: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,376 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.ipc-mode: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,376 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.proxy-configuration: calling 
+handler <awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,376 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.inference-accelerators: calling 
+handler <awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,376 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.ephemeral-storage: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,376 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.runtime-platform: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,377 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.enable-fault-injection: calling 
+handler <awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,377 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.cli-input-json: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,377 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.cli-input-yaml: calling handler 
+<awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,378 - MainThread - botocore.hooks - DEBUG - Event load-cli-arg.ecs.register-task-definition.generate-cli-skeleton: calling 
+handler <awscli.paramfile.URIArgumentHandler object at 0x0000022968C94050>
+2025-12-10 12:44:26,378 - MainThread - botocore.hooks - DEBUG - Event calling-command.ecs.register-task-definition: calling handler <bound method 
+CliInputArgument.add_to_call_parameters of <awscli.customizations.cliinput.CliInputJSONArgument object at 0x0000022969FCD010>>
+2025-12-10 12:44:26,379 - MainThread - awscli.clidriver - DEBUG - Exception caught in main()
+Traceback (most recent call last):
+  File "awscli\customizations\cliinput.py", line 131, in _load_parameters
+  File "json\__init__.py", line 346, in loads
+  File "json\decoder.py", line 345, in decode
+  File "json\decoder.py", line 363, in raw_decode
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "awscli\clidriver.py", line 530, in main
+  File "awscli\clidriver.py", line 667, in __call__
+  File "awscli\clidriver.py", line 857, in __call__
+  File "awscli\clidriver.py", line 968, in _emit_first_non_none_response
+  File "awscli\botocore\session.py", line 753, in emit_first_non_none_response
+  File "awscli\botocore\hooks.py", line 255, in emit
+  File "awscli\botocore\hooks.py", line 238, in _emit
+  File "awscli\customizations\cliinput.py", line 64, in add_to_call_parameters
+  File "awscli\customizations\cliinput.py", line 133, in _load_parameters
+awscli.argprocess.ParamError: Error parsing parameter 'cli-input-json': Invalid JSON received.
+
+Error parsing parameter 'cli-input-json': Invalid JSON received.

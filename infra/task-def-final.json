@@ -1,0 +1,78 @@
+﻿{
+    "memory":  "2048",
+    "executionRoleArn":  "arn:aws:iam::336751562613:role/ecsTaskExecutionRole",
+    "family":  "image-classifier-task",
+    "networkMode":  "awsvpc",
+    "requiresCompatibilities":  [
+                                    "FARGATE"
+                                ],
+    "containerDefinitions":  [
+                                 {
+                                     "name":  "tf_serving",
+                                     "logConfiguration":  {
+                                                              "logDriver":  "awslogs",
+                                                              "options":  {
+                                                                              "awslogs-region":  "us-east-1",
+                                                                              "awslogs-stream-prefix":  "tf_serving",
+                                                                              "awslogs-group":  "/ecs/image-classifier"
+                                                                          }
+                                                          },
+                                     "environment":  [
+                                                         {
+                                                             "value":  "image_classifier",
+                                                             "name":  "MODEL_NAME"
+                                                         },
+                                                         {
+                                                             "value":  "/models/image_classifier",
+                                                             "name":  "MODEL_BASE_PATH"
+                                                         }
+                                                     ],
+                                     "essential":  true,
+                                     "image":  "336751562613.dkr.ecr.us-east-1.amazonaws.com/tf-serving-image-classifier:f9460ea",
+                                     "portMappings":  [
+                                                          {
+                                                              "protocol":  "tcp",
+                                                              "containerPort":  8501
+                                                          }
+                                                      ]
+                                 },
+                                 {
+                                     "name":  "fastapi",
+                                     "logConfiguration":  {
+                                                              "logDriver":  "awslogs",
+                                                              "options":  {
+                                                                              "awslogs-region":  "us-east-1",
+                                                                              "awslogs-stream-prefix":  "fastapi",
+                                                                              "awslogs-group":  "/ecs/image-classifier"
+                                                                          }
+                                                          },
+                                     "environment":  [
+                                                         {
+                                                             "value":  "localhost",
+                                                             "name":  "TF_SERVING_HOST"
+                                                         },
+                                                         {
+                                                             "value":  "8501",
+                                                             "name":  "TF_SERVING_REST_PORT"
+                                                         },
+                                                         {
+                                                             "value":  "image_classifier",
+                                                             "name":  "MODEL_NAME"
+                                                         },
+                                                         {
+                                                             "value":  "224",
+                                                             "name":  "INPUT_SIZE"
+                                                         }
+                                                     ],
+                                     "essential":  true,
+                                     "image":  "336751562613.dkr.ecr.us-east-1.amazonaws.com/fastapi-image-classifier:f9460ea",
+                                     "portMappings":  [
+                                                          {
+                                                              "protocol":  "tcp",
+                                                              "containerPort":  8000
+                                                          }
+                                                      ]
+                                 }
+                             ],
+    "cpu":  "1024"
+}
