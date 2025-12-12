@@ -96,7 +96,7 @@ jobs:
           ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.TF_REPO }}:latest
           ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.TF_REPO }}:${{ github.sha }}
 
-      - name: Get current task definition JSON (from service)
+    - name: Get current task definition JSON (from service)
       id: get_td
       run: |
         set -euo pipefail
