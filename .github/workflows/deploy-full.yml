@@ -96,13 +96,30 @@ jobs:
           ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.TF_REPO }}:latest
           ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.TF_REPO }}:${{ github.sha }}
 
-    - name: Get current task definition JSON
+      - name: Get current task definition JSON (from service)
       id: get_td
       run: |
-        aws ecs describe-task-definition --task-definition "${TASK_FAMILY}" --region ${AWS_REGION} > td-full.json
+        set -euo pipefail
+        CLUSTER="${ECS_CLUSTER}"
+        SERVICE="${ECS_SERVICE}"
+        REGION="${AWS_REGION}"
+
+        echo "Describing service $SERVICE in cluster $CLUSTER ..."
+        svc=$(aws ecs describe-services --cluster "$CLUSTER" --services "$SERVICE" --region "$REGION" --output json)
+        # extract taskDefinition ARN used by the service
+        TD_ARN=$(echo "$svc" | jq -r '.services[0].taskDefinition // empty')
+        if [ -z "$TD_ARN" ]; then
+          echo "ERROR: Could not find taskDefinition for service $SERVICE. Service output:"
+          echo "$svc"
+          exit 1
+        fi
+        echo "Found taskDefinition ARN: $TD_ARN"
+        # now describe that task definition and extract the taskDefinition object
+        aws ecs describe-task-definition --task-definition "$TD_ARN" --region "$REGION" > td-full.json
         jq '.taskDefinition' td-full.json > td.json
         echo "::set-output name=tdfile::td.json"
       shell: bash
+
 
     - name: Create new task definition registration payload
       id: prepare_td
